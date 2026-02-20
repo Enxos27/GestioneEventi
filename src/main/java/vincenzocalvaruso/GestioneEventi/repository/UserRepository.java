@@ -7,6 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
-    // Questo ci servirà per il login
+    // Utile per il login
     Optional<User> findByEmail(String email);
 }

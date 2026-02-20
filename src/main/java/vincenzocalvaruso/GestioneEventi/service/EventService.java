@@ -35,6 +35,7 @@ public class EventService {
             throw new BadRequestException("Solo un Organizzatore di Eventi può compiere questa azione");
         }
 
+        // 3. Creo Evento
         Event event = new Event();
         event.setTitle(dto.title());
         event.setDescription(dto.description());
@@ -50,7 +51,7 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Evento non trovato"));
 
-        // CONTROLLO SICUREZZA: Sei tu l'organizzatore?
+        // CONTROLLO SICUREZZA: "Sei tu l'organizzatore?"
         if (!event.getOrganizer().getId().equals(organizer.getId())) {
             throw new UnauthorizedException("Non hai i permessi per modificare questo evento");
         }

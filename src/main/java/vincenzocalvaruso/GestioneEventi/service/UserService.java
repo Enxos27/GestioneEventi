@@ -35,7 +35,7 @@ public class UserService {
         // Crea l'entità User dal DTO
         User user = new User();
         user.setEmail(dto.email());
-        user.setPassword(passwordEncoder.encode(dto.password())); // In futuro: BCrypt qui
+        user.setPassword(passwordEncoder.encode(dto.password()));
         user.setRole(dto.role() != null ? dto.role() : Role.USER);
 
         return userRepository.save(user);
