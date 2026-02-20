@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import vincenzocalvaruso.GestioneEventi.entity.Booking;
 import vincenzocalvaruso.GestioneEventi.entity.Event;
 import vincenzocalvaruso.GestioneEventi.entity.User;
+import vincenzocalvaruso.GestioneEventi.exceptions.BadRequestException;
 import vincenzocalvaruso.GestioneEventi.exceptions.NotFoundException;
 import vincenzocalvaruso.GestioneEventi.exceptions.UnauthorizedException;
 import vincenzocalvaruso.GestioneEventi.repository.BookingRepository;
