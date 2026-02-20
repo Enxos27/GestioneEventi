@@ -50,7 +50,7 @@ public class Event {
 
     // RELAZIONE EXTRA: Per gestire le prenotazioni (Many-to-Many via Booking)
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties("organizer")
+    @JsonIgnoreProperties({"event", "user.password", "user.authorities", "user.enabled"})
     private List<Booking> bookings = new ArrayList<>();
 
     // Metodo helper per calcolare i posti rimanenti
