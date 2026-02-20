@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 import vincenzocalvaruso.GestioneEventi.entity.Event;
 import vincenzocalvaruso.GestioneEventi.entity.Role;
 import vincenzocalvaruso.GestioneEventi.entity.User;
+import vincenzocalvaruso.GestioneEventi.exceptions.BadRequestException;
+import vincenzocalvaruso.GestioneEventi.exceptions.NotFoundException;
+import vincenzocalvaruso.GestioneEventi.exceptions.UnauthorizedException;
 import vincenzocalvaruso.GestioneEventi.payloads.EventDTO;
 import vincenzocalvaruso.GestioneEventi.repository.EventRepository;
 import vincenzocalvaruso.GestioneEventi.repository.UserRepository;
@@ -25,11 +28,11 @@ public class EventService {
     public Event createEvent(EventDTO dto, UUID organizerId) {
         // 1. Recupero l'utente dal DB
         User organizer = userRepository.findById(organizerId)
-                .orElseThrow(() -> new RuntimeException("Utente non trovato"));
+                .orElseThrow(() -> new NotFoundException("Utente non trovato"));
 
-        // 2. Controllo Ruolo (Vincolo della traccia)
+        // 2. Controllo Ruolo
         if (organizer.getRole() != Role.ORGANIZER) {
-            throw new RuntimeException("Solo un Organizzatore di Eventi può compiere questa azione");
+            throw new BadRequestException("Solo un Organizzatore di Eventi può compiere questa azione");
         }
 
         Event event = new Event();
@@ -45,11 +48,11 @@ public class EventService {
 
     public Event updateEvent(UUID eventId, EventDTO body, User organizer) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Evento non trovato"));
+                .orElseThrow(() -> new NotFoundException("Evento non trovato"));
 
         // CONTROLLO SICUREZZA: Sei tu l'organizzatore?
         if (!event.getOrganizer().getId().equals(organizer.getId())) {
-            throw new RuntimeException("Non hai i permessi per modificare questo evento");
+            throw new UnauthorizedException("Non hai i permessi per modificare questo evento");
         }
 
         event.setTitle(body.title());
@@ -63,11 +66,11 @@ public class EventService {
 
     public void deleteEvent(UUID eventId, User organizer) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Evento non trovato"));
+                .orElseThrow(() -> new NotFoundException("Evento non trovato"));
 
         // CONTROLLO SICUREZZA
         if (!event.getOrganizer().getId().equals(organizer.getId())) {
-            throw new RuntimeException("Non hai i permessi per eliminare questo evento");
+            throw new UnauthorizedException("Non hai i permessi per eliminare questo evento");
         }
 
         eventRepository.delete(event);

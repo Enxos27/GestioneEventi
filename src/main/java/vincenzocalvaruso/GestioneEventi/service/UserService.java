@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vincenzocalvaruso.GestioneEventi.entity.Role;
 import vincenzocalvaruso.GestioneEventi.entity.User;
+import vincenzocalvaruso.GestioneEventi.exceptions.BadRequestException;
 import vincenzocalvaruso.GestioneEventi.exceptions.NotFoundException;
 import vincenzocalvaruso.GestioneEventi.exceptions.UnauthorizedException;
 import vincenzocalvaruso.GestioneEventi.payloads.LoginDTO;
@@ -28,7 +29,7 @@ public class UserService {
     public User register(RegisterDTO dto) {
         // Verifica se l'email esiste già
         if (userRepository.findByEmail(dto.email()).isPresent()) {
-            throw new RuntimeException("Errore: Questa email è già utilizzata.");
+            throw new BadRequestException("L'email " + dto.email() + " è già in uso!");
         }
 
         // Crea l'entità User dal DTO
@@ -47,17 +48,11 @@ public class UserService {
     public String checkCredenzialAndReturnToken(LoginDTO body) {
         //1- controllo che esiste un utente con quella email, se esiste controllo che la password sia uguale
         //Se credenziali non ok genero exception --> 401 UnAuthorized
-        User found = userRepository.findByEmail(body.email()).orElseThrow();
-        // if (found.getPassword().equalsIgnoreCase(body.password())) {
-        // TODO: LA PASSWORDO COSI è MOMENTANEA, MIGLIORERò CIò
+        User found = userRepository.findByEmail(body.email()).orElseThrow(() -> new UnauthorizedException("Email già in uso!"));
         if (passwordEncoder.matches(body.password(), found.getPassword())) {
-
             //2- creo token
             String token = jwtTools.generaToken(found);
-
             return token;
-
-
         } else {
             throw new UnauthorizedException("Credenziali non valide");
         }

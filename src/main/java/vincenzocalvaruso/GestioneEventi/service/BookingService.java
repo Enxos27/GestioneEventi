@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import vincenzocalvaruso.GestioneEventi.entity.Booking;
 import vincenzocalvaruso.GestioneEventi.entity.Event;
 import vincenzocalvaruso.GestioneEventi.entity.User;
+import vincenzocalvaruso.GestioneEventi.exceptions.BadRequestException;
+import vincenzocalvaruso.GestioneEventi.exceptions.NotFoundException;
 import vincenzocalvaruso.GestioneEventi.repository.BookingRepository;
 import vincenzocalvaruso.GestioneEventi.repository.EventRepository;
 import vincenzocalvaruso.GestioneEventi.repository.UserRepository;
@@ -25,17 +27,17 @@ public class BookingService {
     public Booking createBooking(UUID eventId, User user) {
         // 1. Recupero l'evento
         Event event = eventRepo.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Evento non trovato"));
+                .orElseThrow(() -> new NotFoundException("Evento non trovato"));
 
         // 2. Controllo disponibilità posti
         long bookedSeats = bookingRepository.countByEventId(eventId);
         if (bookedSeats >= event.getMaxSeats()) {
-            throw new RuntimeException("Sold out! Non ci sono più posti disponibili.");
+            throw new BadRequestException("Sold out! Non ci sono più posti disponibili.");
         }
 
         // 3. Controllo se l'utente è già prenotato
         if (bookingRepository.existsByUserIdAndEventId(user.getId(), eventId)) {
-            throw new RuntimeException("Ti sei già prenotato per questo evento!");
+            throw new BadRequestException("Ti sei già prenotato per questo evento!");
         }
 
         // 4. Creazione prenotazione
