@@ -31,7 +31,7 @@ public class EventService {
         if (organizer.getRole() != Role.ORGANIZER) {
             throw new RuntimeException("Solo un Organizzatore di Eventi può compiere questa azione");
         }
-        
+
         Event event = new Event();
         event.setTitle(dto.title());
         event.setDescription(dto.description());
@@ -41,6 +41,36 @@ public class EventService {
         event.setOrganizer(organizer);
 
         return eventRepository.save(event);
+    }
+
+    public Event updateEvent(UUID eventId, EventDTO body, User organizer) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Evento non trovato"));
+
+        // CONTROLLO SICUREZZA: Sei tu l'organizzatore?
+        if (!event.getOrganizer().getId().equals(organizer.getId())) {
+            throw new RuntimeException("Non hai i permessi per modificare questo evento");
+        }
+
+        event.setTitle(body.title());
+        event.setDescription(body.description());
+        event.setEventDate(body.eventDate());
+        event.setLocation(body.location());
+        event.setMaxSeats(body.maxSeats());
+
+        return eventRepository.save(event);
+    }
+
+    public void deleteEvent(UUID eventId, User organizer) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Evento non trovato"));
+
+        // CONTROLLO SICUREZZA
+        if (!event.getOrganizer().getId().equals(organizer.getId())) {
+            throw new RuntimeException("Non hai i permessi per eliminare questo evento");
+        }
+
+        eventRepository.delete(event);
     }
 
     // Lista di tutti gli eventi (per gli utenti normali)

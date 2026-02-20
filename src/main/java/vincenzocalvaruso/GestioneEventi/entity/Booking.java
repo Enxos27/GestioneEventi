@@ -1,5 +1,6 @@
 package vincenzocalvaruso.GestioneEventi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,11 +29,13 @@ public class Booking {
     // RELAZIONE: Molte prenotazioni appartengono a un Utente
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"password", "authorities", "createdEvents", "bookings", "accountNonExpired", "accountNonLocked", "credentialsNonExpired", "enabled"})
     private User user;
 
     // RELAZIONE: Molte prenotazioni appartengono a un Evento
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
+    @JsonIgnoreProperties({"bookings", "organizer"})
     private Event event;
 
     // Costruttore rapido per creare una prenotazione

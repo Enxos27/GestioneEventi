@@ -15,6 +15,7 @@ import vincenzocalvaruso.GestioneEventi.payloads.EventDTO;
 import vincenzocalvaruso.GestioneEventi.service.EventService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
@@ -36,6 +37,21 @@ public class EventController {
         }
 
         return eventService.createEvent(body, currentOrganizer.getId());
+    }
+
+    @PutMapping("/{eventId}")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    public Event update(@PathVariable UUID eventId, @RequestBody EventDTO body, @AuthenticationPrincipal User organizer) {
+        return eventService.updateEvent(eventId, body, organizer);
+    }
+
+    // 3. DELETE - Eliminare un evento (Solo l'organizzatore proprietario)
+    @DeleteMapping("/{eventId}")
+    @PreAuthorize("hasAuthority('ORGANIZER')")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // Restituisce 204 se va a buon fine
+    public void delete(@PathVariable UUID eventId,
+                       @AuthenticationPrincipal User organizer) {
+        eventService.deleteEvent(eventId, organizer);
     }
 
     // Endpoint per vedere tutti gli eventi
