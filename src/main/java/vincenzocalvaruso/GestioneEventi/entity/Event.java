@@ -1,9 +1,13 @@
 package vincenzocalvaruso.GestioneEventi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,7 +24,7 @@ public class Event {
 
     @Id
     @GeneratedValue
-    @Column(columnDefinition = "BINARY(16)")
+    @JdbcTypeCode(SqlTypes.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -41,10 +45,12 @@ public class Event {
     // RELAZIONE: Molti eventi appartengono a un solo Organizzatore
     @ManyToOne
     @JoinColumn(name = "organizer_id", nullable = false)
+    @JsonIgnore
     private User organizer;
 
     // RELAZIONE EXTRA: Per gestire le prenotazioni (Many-to-Many via Booking)
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("organizer")
     private List<Booking> bookings = new ArrayList<>();
 
     // Metodo helper per calcolare i posti rimanenti
