@@ -1,6 +1,7 @@
 package vincenzocalvaruso.GestioneEventi.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,5 +30,12 @@ public class BookingController {
     public List<Booking> getMyBookings(@AuthenticationPrincipal User user) {
         // Estraggo l'ID dall'utente autenticato e cosi da poter chiedere al service le sue prenotazioni
         return bookingService.getUserBookings(user.getId());
+    }
+
+    @DeleteMapping("/{bookingId}")
+    @PreAuthorize("hasAuthority('USER')")
+    @ResponseStatus(HttpStatus.NO_CONTENT) // Restituisce 204 se va a buon fine
+    public void cancelBooking(@PathVariable UUID bookingId, @AuthenticationPrincipal User user) {
+        bookingService.deleteBooking(bookingId, user);
     }
 }

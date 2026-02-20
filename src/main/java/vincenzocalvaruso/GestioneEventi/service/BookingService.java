@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import vincenzocalvaruso.GestioneEventi.entity.Booking;
 import vincenzocalvaruso.GestioneEventi.entity.Event;
 import vincenzocalvaruso.GestioneEventi.entity.User;
+import vincenzocalvaruso.GestioneEventi.exceptions.NotFoundException;
+import vincenzocalvaruso.GestioneEventi.exceptions.UnauthorizedException;
 import vincenzocalvaruso.GestioneEventi.repository.BookingRepository;
 import vincenzocalvaruso.GestioneEventi.repository.EventRepository;
 import vincenzocalvaruso.GestioneEventi.repository.UserRepository;
@@ -49,5 +51,24 @@ public class BookingService {
 
     public List<Booking> getUserBookings(UUID userId) {
         return bookingRepository.findByUserId(userId);
+    }
+
+    public void deleteBooking(UUID bookingId, User user) {
+        // 1. Cerco la prenotazione
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Prenotazione non trovata"));
+
+        // 2. CONTROLLO SICUREZZA: "L'utente che cancella è il proprietario della prenotazione?"
+        if (!booking.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("Non puoi annullare una prenotazione non tua!");
+        }
+
+        // 3. Incremento +1 i posti disponbili
+        Event event = booking.getEvent();
+        event.setMaxSeats(event.getAvailableSeats() + 1);
+        eventRepo.save(event);
+
+        // 4. Elimino la prenotazione
+        bookingRepository.delete(booking);
     }
 }

@@ -27,9 +27,6 @@ public class JWTFilters extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // Questo è il metodo che viene eseguito a ogni richiesta
-        // Sarà questo metodo quindi che dovrà fare il controllo dei token
-
         // PIANO DI BATTAGLIA
 
         // 1. Verifichiamo se la richiesta contiene l'header Authorization e che in caso sia nel formato "Bearer oi1j3oj21o3j213jo12j3"
@@ -71,12 +68,10 @@ public class JWTFilters extends OncePerRequestFilter {
         // 4. Se tutto è OK --> andiamo avanti, trasmettiamo la richiesta al prossimo (può essere o un altro elemento della catena oppure il controller)
         filterChain.doFilter(request, response);
 
-        // 5. Se c'è qualche problema con il token -> eccezione
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         return new AntPathMatcher().match("/user/**", request.getServletPath());
-        // return request.getServletPath().equals("/auth/login") || request.getServletPath().equals("/auth/register");
     }
 }
